@@ -30,13 +30,13 @@ except:
 	pass
 
 totDim = 100
-shrink = 2
+cellsH = 80
 for imageFile in inputDirs:
 	if imageFile == ".DS_Store":
 		continue
 	print("Converting %s ..."%imageFile)
 	img = cv2.imread('%s/%s'%(inputDir, imageFile))
-	dimg = sucPyrDown(img, shrink)
+	dimg = cv2.resize(img, (int(img.shape[1]/img.shape[0]*cellsH), cellsH))
 	dimgW = dimg.shape[1]
 	dimgH = dimg.shape[0]
 	rawCanvas = np.zeros((dimgH*totDim, dimgW*totDim, 3))
@@ -44,12 +44,14 @@ for imageFile in inputDirs:
 	bar = Bar('\tProcessing', max=np.shape(dimg)[0]*np.shape(dimg)[1])
 	for row in range(np.shape(dimg)[0]):
 		for pixel in range(np.shape(dimg)[1]):
+			dimgAvg = dimg[row, pixel]
+
 			cellPic = random.choice(cellsDirs)
 			cell = cv2.imread('%s/%s'%(cellsDir, cellPic))
 			grayCell = cv2.cvtColor(cell.astype(np.uint8), cv2.COLOR_BGR2GRAY)
 			grayAvg = np.average(grayCell[grayCell<250])
 
-			dimgAvg = dimg[row, pixel]
+			
 			colCell = dimgAvg/grayAvg * cv2.cvtColor(grayCell, cv2.COLOR_GRAY2BGR)
 
 			#creating a maxk
@@ -60,7 +62,6 @@ for imageFile in inputDirs:
 			rawMask = np.zeros((totDim, totDim, 1), dtype = "uint8")
 			cv2.drawContours(rawMask, cellCon, 0, (255), -1)
 			revMask = np.bitwise_not(rawMask)
-			cv2.imwrite("testasdasd.jpg", revMask)
 			res1 = cv2.bitwise_and(colCell, colCell, mask = rawMask)
 			res2 = res1 + revMask
 

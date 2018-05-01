@@ -1,7 +1,5 @@
 import numpy as np
-import pandas as pd
 import cv2
-from matplotlib import pyplot as plt
 import os
 import copy
 from progress.bar import Bar
@@ -20,6 +18,8 @@ cellThreshValue = 200
 nucThreshValue = 80
 otsu = True
 
+dirs = os.listdir('rawCellImages')
+
 try:
 	dirs = os.listdir('rawCellImages')
 except:
@@ -31,7 +31,7 @@ imageData = []
 #importing image and making grayscale
 noCellsProcessed = 0
 for imageFile in dirs:
-	if imageFile == ".DS_Store":
+	if imageFile == ".DS_Store" or imageFile == "._.DS_Store":
 		continue
 
 	print("Analysing %s..."%imageFile)
@@ -74,7 +74,7 @@ for imageFile in dirs:
 				name = str(noCellsProcessed)
 
 				#creating mask for cells
-				rawMask = np.zeros((img.shape[0], img.shape[1], 1), dtype = "uint8")+255
+				rawMask = np.zeros((img.shape[0], img.shape[1], 1), dtype = "uint8")
 				cv2.drawContours(rawMask, cellCon, i, (255), -1)
 				revMask = np.bitwise_not(rawMask)
 				res1 = cv2.bitwise_and(img, img, mask = rawMask)
